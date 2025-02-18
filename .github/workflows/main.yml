@@ -1,0 +1,31 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: fyp-assistant-451118
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy dialogflow-webhook \
+            --image=gcr.io/fyp-assistant-451118/dialogflow-webhook \
+            --platform=managed \
+            --region=us-central1 \
+            --allow-unauthenticated
